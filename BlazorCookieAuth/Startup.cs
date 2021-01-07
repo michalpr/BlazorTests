@@ -8,6 +8,7 @@ namespace BlazorCookieAuth
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
+    using Radzen;
     using System.Security.Claims;
 
     public class Startup
@@ -25,6 +26,12 @@ namespace BlazorCookieAuth
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
+
+            services.AddScoped<DialogService>();
+            services.AddScoped<NotificationService>();
+            services.AddScoped<TooltipService>();
+            services.AddScoped<ContextMenuService>();
+
             services.AddSingleton<DbDataService>();
             services.AddScoped<IDbDataService, DbDataService>();
 

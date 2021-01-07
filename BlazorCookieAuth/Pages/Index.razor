@@ -1,0 +1,66 @@
+﻿@page "/"
+
+@using BlazorCookieAuth.Data
+@inject DbDataService DataService
+@inject NavigationManager NavigationManager
+
+<AuthorizeView>
+    <Authorized>
+
+        <h1>Loading Plan</h1>
+
+        <p>Some important note.</p>
+
+        @if (dataItemList == null)
+        {
+            <p><em>Loading...</em></p>
+        }
+        else
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Value A</th>
+                        <th>Value B</th>
+                        <th>Code</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in dataItemList)
+                    {
+                        <tr>
+                            <td>@item.Date.ToShortDateString()</td>
+                            <td>@item.ValueA</td>
+                            <td>@item.ValueB</td>
+                            <td>@item.Code</td>
+                            <td>
+                                <button class="btn btn-secondary" @onclick="@(async () => await EditItem(@item.Id))">Edit</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+
+    </Authorized>
+    <NotAuthorized>
+        <p>Not logged in.</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code
+{
+    private List<DataItem> dataItemList;
+
+    protected override async Task OnInitializedAsync()
+    {
+        dataItemList = await DataService.GetDataItemList();
+    }
+
+    private Task EditItem(int id)
+    {
+        NavigationManager.NavigateTo($"/edititem/{id}");
+        return Task.CompletedTask;
+    }
+}

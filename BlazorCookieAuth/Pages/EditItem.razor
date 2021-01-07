@@ -1,0 +1,82 @@
+﻿@page "/edititem/{id:int}"
+
+@using BlazorCookieAuth.Data
+@inject DbDataService DataService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+
+<AuthorizeView Context="Auth">
+    <Authorized>
+        <h1>Edit item</h1>
+
+        <p>Some important note.</p>
+
+        <EditForm Model=@Item>
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <InputText @bind-Value=currentId type="hidden" />
+
+            <div class="form-group">
+                <label for="date">Date</label>
+                <InputDate @bind-Value=Item.Date class="form-control" id="date" placeholder="Date" />
+                <ValidationMessage For="() => Item.Date" />
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="valA">Value A</label>
+                    <InputNumber @bind-Value="Item.ValueA"
+                                    class="form-control" id="valA" placeholder="Value A" />
+                    <ValidationMessage For="() => Item.ValueA" />
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label for="valB">Value B</label>
+                    <InputNumber @bind-Value="Item.ValueB" class="form-control" id="valB" placeholder="Value B" />
+                    <ValidationMessage For="() => Item.ValueB" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="summary">Code</label>
+                <InputSelect @bind-Value=Item.Code class="form-control" id="code">
+                    <option>Select a code...</option>
+                    @foreach (var item in codes)
+                    {
+                        <option value="@item">@item</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="() => Item.Code" />
+            </div>
+
+            <button @onclick="@(async () => await UpdateItem())" class="btn btn-primary">Save</button>
+        </EditForm>
+    </Authorized>
+    <NotAuthorized>
+        <p>You are not logged in.</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code
+{
+    DataItem Item;
+    private string[] codes;
+    private string currentId = null;
+
+    [Parameter]
+    public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        this.Item = await DataService.GetDataItemById(this.Id);
+        this.currentId = this.Item.Id.ToString();
+        codes = await DataService.GetCodeList();
+    }
+
+    private async Task UpdateItem()
+    {
+        await DataService.UpdateDataItem(this.Item);
+        NavigationManager.NavigateTo("/");
+    }
+}
